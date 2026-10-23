@@ -1,99 +1,116 @@
 var init = function (window) {
-    'use strict';
-    var 
-        draw = window.opspark.draw,
-        physikz = window.opspark.racket.physikz,
-        
-        app = window.opspark.makeApp(),
-        canvas = app.canvas, 
-        view = app.view,
-        fps = draw.fps('#000');
-        
-    
-    window.opspark.makeGame = function() {
-        
-        window.opspark.game = {};
-        var game = window.opspark.game;
-        
-        ///////////////////
-        // PROGRAM SETUP //
-        ///////////////////
-        
-        // TODO 1 : Declare and initialize our variables
+  "use strict";
+  var draw = window.opspark.draw,
+    physikz = window.opspark.racket.physikz,
+    app = window.opspark.makeApp(),
+    canvas = app.canvas,
+    view = app.view,
+    fps = draw.fps("#000");
 
+  window.opspark.makeGame = function () {
+    window.opspark.game = {};
+    var game = window.opspark.game;
 
+    ///////////////////
+    // PROGRAM SETUP //
+    ///////////////////
 
-        // TODO 2 : Create a function that draws a circle 
-        
+    // TODO 1 : Declare and initialize our variables
+    let entityCount = 1500;
+    const circles = [];
 
+    // TODO 2 : Create a function that draws a circle
 
-        // TODO 3 : Call the drawCircle() function
+    function drawCircle() {
+      var circle = draw.randomCircleInArea(canvas, true, true, "#999", 2);
+      physikz.addRandomVelocity(circle, canvas, 5, 5);
+      view.addChild(circle);
+      circle.velocityX *= 10;
+      circle.velocityY *= 10;
+      circles.push(circle);
+    }
 
+    // TODO 3 : Call the drawCircle() function
+    // TODO 7 : Use a loop to create multiple circles
+    for (let i = 0; i < entityCount; i++) {
+      drawCircle();
+    }
+    console.log(canvas);
+    console.log(circles[0]);
+    ///////////////////
+    // PROGRAM LOGIC //
+    ///////////////////
 
-
-        // TODO 7 : Use a loop to create multiple circles
-
-
-
-
-        ///////////////////
-        // PROGRAM LOGIC //
-        ///////////////////
-        
-        /* 
+    /* 
         This Function is called 60 times/second, producing 60 frames/second.
         In each frame, for every circle, it should redraw that circle
         and check to see if it has drifted off the screen.         
         */
-        function update() {
-            // TODO 4 : Update the position of each circle using physikz.updatePosition()
+    function update() {
+      for (let i = 0; i < circles.length; i++) {
+        game.checkCirclePosition(circles[i]);
+        physikz.updatePosition(circles[i]);
+      }
+      /*
+      for (let entity of circles) {
+        physikz.updatePosition(entity);
+        game.checkCirclePosition(entity);
+      }*/
 
-            
-            // TODO 5 : Call game.checkCirclePosition() on your circles
-           
+      // TODO 4 : Update the position of each circle using physikz.updatePosition()
+      // TODO 5 : Call game.checkCirclePosition() on your circles
+      // TODO 8 / TODO 9 : Iterate over the array
+    }
 
-            // TODO 8 / TODO 9 : Iterate over the array
-           
-            
-        }
-    
-        /* 
+    /* 
         This Function should check the position of a circle that is passed to the 
         Function. If that circle drifts off the screen, this Function should move
         it to the opposite side of the screen.
         */
-        game.checkCirclePosition = function(circle) {
+    game.checkCirclePosition = function (circle) {
+      // if the circle has gone past the RIGHT side of the screen then place it on the LEFT
+      let top = circle.y + circle.radius;
+      let bottom = circle.y - circle.radius;
+      let right = circle.x + circle.radius;
+      let left = circle.x - circle.radius;
 
-            // if the circle has gone past the RIGHT side of the screen then place it on the LEFT
-            if ( circle.x > canvas.width ) {
-                circle.x = 0;
-            }
-            
-            // TODO 6 : YOUR CODE STARTS HERE //////////////////////
-            
+      if (left > canvas.width) {
+        circle.x = 0;
+      } else if (right < 0) {
+        circle.x = canvas.width;
+      }
+      if (bottom > canvas.height) {
+        // wont work??? || just this tho
+        circle.y = 0;
+      } else if (top < 0) {
+        circle.y = canvas.heght;
+      }
 
+      // TODO 6 : YOUR CODE STARTS HERE //////////////////////
 
-            // YOUR TODO 6 CODE ENDS HERE //////////////////////////
-        }
-        
-        /////////////////////////////////////////////////////////////
-        // --- NO CODE BELOW HERE  --- DO NOT REMOVE THIS CODE --- //
-        /////////////////////////////////////////////////////////////
-        
-        view.addChild(fps);
-        app.addUpdateable(fps);
-        
-        game.circles = circles;
-        game.drawCircle = drawCircle;
-        game.update = update;
-        
-        app.addUpdateable(window.opspark.game);
-    }
+      // YOUR TODO 6 CODE ENDS HERE //////////////////////////
+    };
+
+    /////////////////////////////////////////////////////////////
+    // --- NO CODE BELOW HERE  --- DO NOT REMOVE THIS CODE --- //
+    /////////////////////////////////////////////////////////////
+
+    view.addChild(fps);
+    app.addUpdateable(fps);
+
+    game.circles = circles;
+    game.drawCircle = drawCircle;
+    game.update = update;
+
+    app.addUpdateable(window.opspark.game);
+  };
 };
 
 // DO NOT REMOVE THIS CODE //////////////////////////////////////////////////////
-if((typeof process !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    // here, export any references you need for tests //
-    module.exports = init;
+if (
+  typeof process !== "undefined" &&
+  typeof process.versions.node !== "undefined"
+) {
+  // here, export any references you need for tests //
+  module.exports = init;
 }
