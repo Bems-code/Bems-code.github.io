@@ -1,5 +1,16 @@
 // @ts-check
 
+/**
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
+function getRandomInt(min, max) {
+    const minCeiled = Math.ceil(min);
+    const maxFloored = Math.floor(max);
+    return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+}
+
 //------------- HTML ELEMENTS -------------\\
 const board = document.querySelector(".board");
 const canvas = document.getElementById("canvas"); //@ts-ignore,
@@ -26,12 +37,12 @@ class box {
   /** @param   {boxParams} Params */
   constructor(Params) {
     // do wtv idc
-    this.width = Params.size[0];
-    this.height = Params.size[1];
+
+    this.width = 1
+    this.height = 1
 
     this.pos = [0, 0];
     this.velo = [0, 0];
-    this.accel = Params.accel;
 
     //this.friction = 0.1   // bruh add this already // bruuuu
     this.mass = Params.mass;
@@ -46,9 +57,7 @@ class box {
     return new boxParams(
       this.color,
       this.anchored,
-      this.mass,
-      [this.width, this.height], //@ts-ignore,
-      this.accel,
+      this.mass
     );
   }
 
@@ -101,30 +110,26 @@ class box {
     ctx.closePath();
   }
 
-  // call this however many times per frame
-  // or preferably do a global call
   stepMovement() {
-    this.velo[0] += this.accel[0];
-    this.velo[1] += this.accel[1];
 
     this.pos[0] += this.velo[0];
     this.pos[1] += this.velo[1];
 
     // T-T
-    if (this.left <= 0) {
-      this.velo[0] *= -1;
-      this.pos[0] -= this.left;
-    } else if (this.right >= absoluteWidth) {
-      this.velo[0] *= -1;
-      this.pos[0] += absoluteWidth - this.right;
+    if (this.right <= 0) {
+      
+      this.pos[0] = absoluteWidth - this.right;
+    } else if (this.left >= absoluteWidth) {
+      
+      this.pos[0] = 0 // make this smoother
     }
 
-    if (this.bottom <= 0) {
-      this.velo[1] *= -1;
-      this.pos[1] -= this.bottom;
-    } else if (this.top >= absoluteHeight) {
-      this.velo[1] *= -1;
-      this.pos[1] += absoluteHeight - this.top;
+    if (this.top <= 0) {
+      
+      this.pos[1] = absoluteHeight - this.top;
+    } else if (this.bottom >= absoluteHeight) {
+      
+      this.pos[1] = 0
     }
   }
 }
@@ -134,15 +139,11 @@ class boxParams {
    * @param   {string} color
    * @param   {boolean} anchored
    * @param   {number} mass
-   * @param   {[number, number]} size
-   * @param   {[number, number]} accel
    */ // Not needed, will default if not specified || also sucks since it requries specific order, so do it outside of this
-  constructor(color, anchored, mass, size, accel) {
+  constructor(color, anchored, mass) {
     this.color = color ? color : `hsl(${Math.random() * 360}, 50%, 50%)`;
     this.anchored = anchored ? anchored : false;
     this.mass = mass ? mass : 1;
-    this.size = size ? size : [10, 10];
-    this.accel = accel ? accel : [0, 0];
   }
 }
 
@@ -150,11 +151,8 @@ const errorParams = new boxParams(
   "hsl(300, 100%, 50%)",
   true,
   1,
-  [100, 100],
-  [0, 1],
 );
 
-//------------- EXPORTED METHODS -------------\\
 
 /**
  * @param {boxParams} params
@@ -184,8 +182,24 @@ const Physics = {
   boxParams: boxParams,
 };
 
-let basicParams = new Physics.boxParams("white", false, 10, [50, 50], [0, 0.4]);
+// pretend everything below here is in different file
 
-let newBox = Physics.entityCreate(basicParams);
+let basicParams = new Physics.boxParams('white', false, 10);
+
+for (let i = 0; i < 5; i++){
+
+    let box = Physics.entityCreate(basicParams);
+    box.velo[1] = getRandomInt(-5, 5)
+    box.velo[0] = getRandomInt(-5, 5)
+    box.pos[0] = getRandomInt(0, absoluteWidth)
+    box.pos[1] = getRandomInt(0, absoluteHeight)
+    box.width = getRandomInt(45, 75)
+    box.height = getRandomInt(45, 75)
+
+    box.color = `hsl(${Math.random() * 360}, 70%, 50%)`
+}
+
+console.log(entityList)
+
 
 Physics.init();
