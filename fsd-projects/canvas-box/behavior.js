@@ -61,18 +61,20 @@ class box {
     );
   }
 
-  // Placeholder
-  get top() {
-    return this.pos[1];
-  }
-  get left() {
-    return this.pos[0];
-  }
-  get right() {
-    return this.pos[0];
-  }
   get bottom() {
-    return this.pos[1];
+    return this.pos[1] - (this.height / 2);
+  }
+
+  get top() {
+    return this.pos[1] + (this.height / 2);
+  }
+
+  get left() {
+    return this.pos[0] - (this.width / 2);
+  }
+
+  get right() {
+    return this.pos[0] + (this.width / 2);
   }
 
   get anchored() {
