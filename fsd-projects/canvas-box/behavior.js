@@ -89,23 +89,31 @@ class box {
 }
 
 let boxCount = 0;
-let boxInterval = setInterval(newBox, 160);
+let boxInterval = setInterval(newBox, 4);
 const maxCount = 1_000;
-const scale = 10;
-
+const scale = 2;
+const piStep = Math.PI / 36;
+const divRadi = 10;
 function newBox() {
   if (boxCount >= maxCount) {
     clearInterval(boxInterval);
+
+    for (const varBox of boxList) {
+      let dir1 = getRandomInt(-1, 1);
+      let dir2 = getRandomInt(-1, 1);
+      varBox.velo[1] = getRandomInt(1, 10) * (dir1 === 0 ? 1 : dir1);
+      varBox.velo[0] = getRandomInt(1, 10) * (dir2 === 0 ? 1 : dir2);
+    }
+
     return;
   }
   let varBox = new box();
   // prevent 0 velocity
-  let dir1 = getRandomInt(-1, 1);
-  let dir2 = getRandomInt(-1, 1);
-  varBox.velo[1] = getRandomInt(1, 10) * (dir1 === 0 ? 1 : dir1);
-  varBox.velo[0] = getRandomInt(1, 10) * (dir2 === 0 ? 1 : dir2);
-  varBox.pos[0] = absoluteWidth / 2; //getRandomInt(0, absoluteWidth);
-  varBox.pos[1] = absoluteHeight / 2; //getRandomInt(0, absoluteHeight);
+
+  varBox.pos[0] =
+    absoluteWidth / 2 + (boxCount / divRadi) * Math.cos(piStep * boxCount);
+  varBox.pos[1] =
+    absoluteHeight / 2 + (boxCount / divRadi) * Math.sin(piStep * boxCount);
   varBox.width = getRandomInt(3, 10) * scale;
   varBox.height = getRandomInt(3, 10) * scale;
 
