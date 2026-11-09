@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+
+      height: 1vh;
+      width: 1vh;
+      min-height: 100vh;
+      background-color: rgb(255, 0, 0);
+    }
+
+    .char {
+      position: absolute;
+      height: 250px;
+      width: 250px;
+    }
+
+    .board {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgb(0, 0, 0);
+    }
+
+    .bg {
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class='board'>
+    <canvas></canvas>
+    <img hidden class='char'
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR54o1EmRPxiRQakPWpzof-EQN4MVFzBxM3IDAcgm3p3-85trtRgUlLy9VR:https://media.istockphoto.com/id/2197675053/photo/man-jogging-outdoors-in-city-on-a-bright-sunny-day.jpg%3Fs%3D612x612%26w%3D0%26k%3D20%26c%3DHqv0acUkn8qwZuki0PzdkTh3UaeQzcFIe_I4FrvPh5s%3D&s=10">
+
+
+    <img hidden class='reset'
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0tBeHPv7TzdLBSquBZz6nwq88mWjBYaEPAVbt9zHvG2JO2EZOzyCn1rAi:https://www.shutterstock.com/shutterstock/photos/329338571/display_1500/stock-photo-obstacle-word-on-stop-sign-to-illustrate-overcoming-a-problem-challenge-or-difficulty-329338571.jpg&s=10">
+
+    <img hidden class='bg'
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTW9eLxKmb7HFbIpriTUHBc0yTrpxNeNICHaK0xlu3IPRMtvFdvf5fq9OE:https://m.media-amazon.com/images/I/81iUxsOOu9L.jpg&s">
+
+  </div>
+
+  <script type='module' src='behavior.js'></script>
+</body>
+
+</html>
