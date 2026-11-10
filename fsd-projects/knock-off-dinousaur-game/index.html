@@ -30,6 +30,23 @@
       background-color: rgb(0, 0, 0);
     }
 
+    .game-data {
+      position: absolute;
+      left: 2%;
+      width: 275px;
+      height: 40px;
+    }
+
+    .game-data p {
+      color: white;
+      font-size: 40px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: Copperplate, Papyrus, fantasy;
+      background-color: rgba(87, 141, 1, 0.637);
+    }
+
     .bg {
       position: absolute;
     }
@@ -37,9 +54,13 @@
 </head>
 
 <body>
-
   <div class='board'>
+    <div class='game-data'>
+      <p> Deaths: 0</p>
+    </div>
     <canvas></canvas>
+    <img hidden class='decor'
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkNyQxZrfOxmx-ekovpK_RE1qPcWIkfcHz_D4HTsLnYSBd-mL2bIWstaM&s=10">
     <img hidden class='char'
       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR54o1EmRPxiRQakPWpzof-EQN4MVFzBxM3IDAcgm3p3-85trtRgUlLy9VR:https://media.istockphoto.com/id/2197675053/photo/man-jogging-outdoors-in-city-on-a-bright-sunny-day.jpg%3Fs%3D612x612%26w%3D0%26k%3D20%26c%3DHqv0acUkn8qwZuki0PzdkTh3UaeQzcFIe_I4FrvPh5s%3D&s=10">
 

@@ -1,8 +1,12 @@
 let code = "done";
+let bugs = "none";
+let money = `ton`;
 
-let bg = document.querySelector(".bg");
-let char = document.querySelector(".char");
-let obstacle = document.querySelector(".reset"); // make this a  div
+const bg = document.querySelector(".bg");
+const char = document.querySelector(".char");
+const obstacle = document.querySelector(".reset");
+const decor = document.querySelector(".decor");
+const gameData = document.querySelector(".game-data p");
 const board = document.querySelector(".board");
 const canvas = board.querySelector("canvas");
 const rect = board.getBoundingClientRect();
@@ -10,19 +14,24 @@ const ctx = canvas.getContext("2d");
 
 const absWidth = rect.width;
 const absHeight = rect.height;
-
-const gravity = 9.82; // earth
-
-canvas.width = absWidth;
-canvas.height = absHeight;
-
-let x = absWidth;
-
-const floor = 230;
-const step = 6;
-
 const halfWidth = absWidth / 2;
 const halfHeight = absHeight / 2;
+canvas.width = absWidth;
+canvas.height = absHeight;
+console.log(absWidth, absHeight);
+
+const jumpPower = 23;
+const gravity = 0.982; // earth
+const floor = absHeight - 125;
+
+let x = absWidth;
+const step = 6;
+
+function getRandomInt(min, max) {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+}
 
 // credit to @Bems-code for the collision code
 class box {
@@ -38,10 +47,10 @@ class box {
   }
 
   get bottom() {
-    return this.pos[1] - this.height / 2;
+    return this.pos[1] + this.height / 2;
   }
   get top() {
-    return this.pos[1] + this.height / 2;
+    return this.pos[1] - this.height / 2;
   }
   get left() {
     return this.pos[0] - this.width / 2;
@@ -51,7 +60,7 @@ class box {
   }
 
   draw() {
-    ctx.drawImage(this.img, this.pos[0], this.pos[1], this.width, this.height);
+    ctx.drawImage(this.img, this.left, this.top, this.width, this.height);
   }
 
   stepMovement() {
@@ -69,12 +78,12 @@ class box {
       this.pos[0] += absWidth - this.right;
     }
 
-    if (this.bottom <= 0) {
+    if (this.bottom >= floor) {
+      this.velo[1] = 0;
+      this.pos[1] = floor - this.height / 2;
+    } else if (this.top <= 0) {
       this.velo[1] *= -1;
-      this.pos[1] -= this.bottom;
-    } else if (this.top >= absHeight) {
-      this.velo[1] *= -1;
-      this.pos[1] += absHeight - this.top;
+      this.pos[1] = this.height / 2;
     }
   }
 }
@@ -98,23 +107,14 @@ class spike extends box {
       this.pos[0] = absWidth + this.width;
     }
 
-    if (this.bottom <= 0) {
+    if (this.bottom >= floor) {
+      this.velo[1] = 0;
+      this.pos[1] = floor - this.height / 2;
+    } else if (this.top <= 0) {
       this.velo[1] *= -1;
-      this.pos[1] -= this.bottom;
-    } else if (this.top >= absHeight) {
-      this.velo[1] *= -1;
-      this.pos[1] += absHeight - this.top;
+      this.pos[1] = this.height / 2;
     }
   }
-}
-
-//spike is linear, slime uses sin for y axis too
-class slime extends box {
-  constructor(Params) {
-    super(Params);
-  }
-
-  stepMovement() {}
 }
 
 class params {
@@ -158,18 +158,34 @@ function bgRoll() {
 
 //WE'RE GONNA USE CIRCLES FOR THIS SINCE ITS EASIER
 // BOXES USE TOO MANY IF STATEMENTS
-const plrParams = new params(char, 90, 90, [233, halfHeight], [0, 0], [0, 0]);
+const plrParams = new params(
+  char,
+  90,
+  90,
+  [233, absHeight],
+  [0, 0],
+  [0, gravity],
+);
 const obstacleParams = new params(
   obstacle,
   75,
   150,
-  [absWidth, halfHeight - plrParams.height / 2],
+  [absWidth, absHeight],
+  [-step, 0],
+  [0, 0],
+);
+const decorParams = new params(
+  decor,
+  125,
+  60,
+  [absWidth, 130],
   [-step, 0],
   [0, 0],
 );
 const plr = new box(plrParams);
+const decorList = [];
 const obstacleList = [];
-let posSum = 232;
+let posSum = 310;
 for (let i = 0; i < 5; i += 1) {
   let obstacle = new spike(obstacleParams);
 
@@ -177,9 +193,29 @@ for (let i = 0; i < 5; i += 1) {
   obstacleList.push(obstacle);
 }
 
+for (let i = 0; i < 25; i += 1) {
+  let decor = new spike(decorParams);
+
+  decor.pos = [
+    decor.pos[0] + getRandomInt(120, 500) * i,
+    decor.pos[1] + 50 * Math.sin(posSum * i),
+  ];
+  decorList.push(decor);
+}
+
+let Deaths = 0;
+
+// Draw order very important
 function globalTick() {
   ctx.clearRect(0, 0, absWidth, absHeight);
   bgRoll();
+
+  for (const decor of decorList) {
+    decor.stepMovement();
+    decor.draw();
+  }
+
+  plr.stepMovement();
   plr.draw();
 
   for (const obstacle of obstacleList) {
@@ -189,16 +225,26 @@ function globalTick() {
     if (obstacle.left > plr.right || obstacle.right < plr.left) {
       continue;
     }
-    if (obstacle.bottom > plr.top || obstacle.top < plr.bottom) {
+    // REDUNDANT UNTIL BIRDS ARE ADDED
+    if (obstacle.bottom < plr.top || obstacle.top > plr.bottom) {
       continue;
     }
-    console.log("dead");
+    Deaths += 1;
+    gameData.textContent = "Deaths: " + Deaths;
     // KILLLLLLLL
   }
 }
 
 function init() {
   setInterval(globalTick, 16);
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "w" || plr.velo[1] !== 0) {
+      return;
+    }
+
+    plr.velo[1] -= jumpPower;
+  });
 }
 
 init();
