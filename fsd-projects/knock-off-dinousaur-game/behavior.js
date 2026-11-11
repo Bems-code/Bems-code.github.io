@@ -6,7 +6,7 @@ const bg = document.querySelector(".bg");
 const char = document.querySelector(".char");
 const obstacle = document.querySelector(".reset");
 const decor = document.querySelector(".decor");
-const gameData = document.querySelector(".game-data p");
+const gameData = document.querySelectorAll(".game-data p");
 const board = document.querySelector(".board");
 const canvas = board.querySelector("canvas");
 const rect = board.getBoundingClientRect();
@@ -24,8 +24,14 @@ const jumpPower = 23;
 const gravity = 0.982; // earth
 const floor = absHeight - 125;
 
+let interval;
+let deaths = 0;
+let alive = true;
+let score = 0;
+let highScore = 0;
+
 let x = absWidth;
-const step = 6;
+let step = 7;
 
 function getRandomInt(min, max) {
   const minCeiled = Math.ceil(min);
@@ -105,6 +111,39 @@ class spike extends box {
 
     if (this.right <= -this.width) {
       this.pos[0] = absWidth + this.width;
+      score += 1;
+      gameData[1].textContent = "Score: " + score;
+      if (highScore < score) {
+        highScore = score;
+        gameData[2].textContent = "Highscore: " + highScore;
+      }
+    }
+
+    if (this.bottom >= floor) {
+      this.velo[1] = 0;
+      this.pos[1] = floor - this.height / 2;
+    } else if (this.top <= 0) {
+      this.velo[1] *= -1;
+      this.pos[1] = this.height / 2;
+    }
+  }
+}
+
+class decoration extends box {
+  // add health logic later if time allows
+  constructor(Params) {
+    super(Params);
+  }
+
+  stepMovement() {
+    this.velo[0] += this.accel[0];
+    this.velo[1] += this.accel[1];
+
+    this.pos[0] += this.velo[0];
+    this.pos[1] += this.velo[1];
+
+    if (this.right <= -this.width) {
+      this.pos[0] = absWidth + this.width;
     }
 
     if (this.bottom >= floor) {
@@ -168,8 +207,8 @@ const plrParams = new params(
 );
 const obstacleParams = new params(
   obstacle,
-  75,
-  150,
+  50,
+  125,
   [absWidth, absHeight],
   [-step, 0],
   [0, 0],
@@ -185,25 +224,31 @@ const decorParams = new params(
 const plr = new box(plrParams);
 const decorList = [];
 const obstacleList = [];
-let posSum = 310;
-for (let i = 0; i < 5; i += 1) {
-  let obstacle = new spike(obstacleParams);
+let posSum = 360;
 
-  obstacle.pos = [obstacle.pos[0] + posSum * i, obstacle.pos[1]];
-  obstacleList.push(obstacle);
+for (let i = 0; i < 4; i += 1) {
+  obstacleList.push(new spike(obstacleParams));
 }
-
 for (let i = 0; i < 25; i += 1) {
-  let decor = new spike(decorParams);
-
-  decor.pos = [
-    decor.pos[0] + getRandomInt(120, 500) * i,
-    decor.pos[1] + 50 * Math.sin(posSum * i),
-  ];
-  decorList.push(decor);
+  decorList.push(new decoration(decorParams));
 }
 
-let Deaths = 0;
+function death() {
+  clearInterval(interval);
+  ctx.beginPath();
+  ctx.rect(0, 0, absWidth, absHeight);
+  ctx.fillStyle = `hsla(0, 0%, 0%, 0.60)`;
+  ctx.fill();
+  ctx.closePath();
+
+  ctx.font = "italic 50px Papyrus";
+  ctx.fillStyle = "red";
+  ctx.fillText("Dead", halfWidth - 50, halfHeight);
+
+  ctx.font = " 34px Papyrus";
+  ctx.fillStyle = "white";
+  ctx.fillText("press r to restart", halfWidth - 100, halfHeight + 50);
+}
 
 // Draw order very important
 function globalTick() {
@@ -229,22 +274,50 @@ function globalTick() {
     if (obstacle.bottom < plr.top || obstacle.top > plr.bottom) {
       continue;
     }
-    Deaths += 1;
-    gameData.textContent = "Deaths: " + Deaths;
+    deaths += 1;
+    gameData[0].textContent = "Deaths: " + deaths;
+
+    alive = false;
     // KILLLLLLLL
   }
+
+  if (alive) {
+    return;
+  }
+  death();
 }
 
 function init() {
-  setInterval(globalTick, 16);
+  alive = true;
+  score = 0;
+  plr.velo[1] = 0;
+  plr.pos[1] = floor - plr.height / 2;
+  gameData[1].textContent = "Score: " + score;
 
-  document.addEventListener("keydown", function (event) {
-    if (event.key !== "w" || plr.velo[1] !== 0) {
-      return;
-    }
+  for (let i = 0; i < decorList.length; i++) {
+    const decor = decorList[i];
+    decor.pos = [
+      decorParams.pos[0] + getRandomInt(120, 500) * i,
+      decorParams.pos[1] + 50 * Math.sin(posSum * i),
+    ];
+  }
 
-    plr.velo[1] -= jumpPower;
-  });
+  for (let i = 0; i < obstacleList.length; i++) {
+    const obstacle = obstacleList[i];
+    obstacle.pos = [obstacleParams.pos[0] + posSum * i, obstacleParams.pos[1]];
+  }
+
+  interval = setInterval(globalTick, 16);
 }
+
+document.addEventListener("keydown", function (event) {
+  if (event.key === "w" && plr.velo[1] === 0) {
+    plr.velo[1] -= jumpPower;
+  }
+
+  if (event.key === "r" && !alive) {
+    init();
+  }
+});
 
 init();

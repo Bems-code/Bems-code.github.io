@@ -32,14 +32,18 @@
 
     .game-data {
       position: absolute;
+      display: flex;
+      flex-direction: column;
       left: 2%;
       width: 275px;
-      height: 40px;
+      height: 400px;
     }
 
     .game-data p {
+      margin: 1px;
+      padding: 0px;
       color: white;
-      font-size: 40px;
+      font-size: 30px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -57,6 +61,8 @@
   <div class='board'>
     <div class='game-data'>
       <p> Deaths: 0</p>
+      <p> Score: 0</p>
+      <p> HighScore: 0</p>
     </div>
     <canvas></canvas>
     <img hidden class='decor'
